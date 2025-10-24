@@ -21,8 +21,8 @@ def sample_model_1(sample_size, n=30):
     return samples
 
 
-def sample_beta(s, n, alpha=1.0, beta_param=1.0):
-    return np.random.beta(alpha, beta_param, size=(s, n))
+def sample_beta(s, n, alpha=1.0, beta=1.0):
+    return np.random.beta(alpha, beta, size=(s, n))
 
 
 # --- n Generator Functions ---
