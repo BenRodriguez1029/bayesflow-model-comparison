@@ -20,6 +20,11 @@ def sample_model_1(sample_size, n=30):
         loc=mus[:, None], scale=1, size=(sample_size, n))
     return samples
 
+
+def sample_beta(s, n, alpha=1.0, beta_param=1.0):
+    return np.random.beta(alpha, beta_param, size=(s, n))
+
+
 # --- n Generator Functions ---
 
 
@@ -62,5 +67,46 @@ class DataGenerator(Sequence):
 
         n_batch = np.full((self.batch_size, 1),
                           (sample_n / self.n_norm), dtype=np.float32)
+
+        return (X_batch[:, :, None], n_batch), y_batch[:, None]
+
+
+class DataGeneratorMulti(Sequence):
+    def __init__(self, batches_per_epoch, sample_funcs, n_generator, batch_size=32, n_norm=30, **kwargs):
+        super().__init__(**kwargs)
+        self.batches_per_epoch = batches_per_epoch
+        self.sample_funcs = sample_funcs
+        self.n_generator = n_generator
+        self.batch_size = batch_size
+        self.n_models = len(sample_funcs)
+        self.n_norm = n_norm
+
+    def __len__(self):
+        return self.batches_per_epoch
+
+    def __getitem__(self, index):
+        sample_n = self.n_generator()
+
+        base_size = self.batch_size // self.n_models
+        sizes = [base_size] * self.n_models
+        for i in range(self.batch_size % self.n_models):
+            sizes[i] += 1
+
+        X_list = []
+        y_list = []
+        for model_idx, (func, size) in enumerate(zip(self.sample_funcs, sizes)):
+            X_model = func(size, sample_n)
+            X_list.append(X_model)
+            y_list.append(np.full(size, model_idx, dtype=np.int32))
+
+        X_batch = np.concatenate(X_list, axis=0)
+        y_batch = np.concatenate(y_list, axis=0)
+
+        perm = np.random.permutation(self.batch_size)
+        X_batch = X_batch[perm]
+        y_batch = y_batch[perm]
+
+        n_batch = np.full((self.batch_size, 1), sample_n /
+                          self.n_norm, dtype=np.float32)
 
         return (X_batch[:, :, None], n_batch), y_batch[:, None]
