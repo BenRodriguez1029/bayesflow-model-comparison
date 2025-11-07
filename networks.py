@@ -54,3 +54,21 @@ class MultiBayesEvidenceNetwork(Model):
         x = ops.concatenate([x, n], axis=-1)
         x = self.classification_network(x, training=training)
         return self.output_layer(x)
+
+
+class BayesEvidenceNetwork(Model):
+    def __init__(self, num_models, **kwargs):
+        super().__init__(**kwargs)
+
+        # shared backbone network
+        self.summary_network = bf.networks.DeepSet(summary_dim=8, dropout=None)
+        self.classification_network = bf.networks.MLP(
+            widths=[32] * 4, activation="silu", dropout=None)
+
+        self.output_layer = Dense(num_models-1, activation=None,
+                                  kernel_initializer=RandomNormal(mean=0.0, stddev=0.01))  # unbounded
+
+    def call(self, x, training=False):
+        x = self.summary_network(x, training=training)
+        x = self.classification_network(x, training=training)
+        return self.output_layer(x)
