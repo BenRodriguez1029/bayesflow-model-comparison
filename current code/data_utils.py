@@ -27,9 +27,9 @@ class DataSimulator(Sequence):
 
         X_batch = np.concatenate(X_list, axis=0)
         y_batch = np.concatenate(y_list, axis=0)
-
+        
         perm = np.random.permutation(self.batch_size)
         X_batch = X_batch[perm]
         y_batch = y_batch[perm]
 
-        return X_batch[:, :, None], y_batch[:, None]
+        return X_batch, y_batch[:, None]

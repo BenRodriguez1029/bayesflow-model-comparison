@@ -41,7 +41,7 @@ def lpop_exponential_loss(y_true, y_pred, alpha=2.0):
 
 
 def multimodel_exponential_loss(y_true, f_x):
-    target_index = ops.cast(y_true[:, 0], "int32")  # get target model
+    target_index = ops.cast(y_true[:, 0], "int32")
     batch_size = ops.shape(f_x)[0]
 
     # prepend f0 = 0
@@ -57,4 +57,28 @@ def multimodel_exponential_loss(y_true, f_x):
     diffs_masked = diffs * mask
 
     losses = ops.exp(-0.5 * diffs_masked)
-    return ops.mean(ops.sum(losses, axis=1))  # mean over batch
+    return ops.mean(ops.sum(losses, axis=1))
+
+
+def multimodel_logistic_loss(y_true, f_x):
+    target_index = ops.cast(y_true[:, 0], "int32")  
+    batch_size = ops.shape(f_x)[0]
+
+    # prepend f0 = 0
+    f0 = ops.zeros((batch_size, 1), dtype=f_x.dtype)
+    fx_full = ops.concatenate([f0, f_x], axis=1)
+
+    # select f_m for each sample
+    f_m = fx_full[ops.arange(batch_size), target_index]
+    diffs = fx_full - ops.expand_dims(f_m, axis=1)
+
+    mask = ops.ones_like(diffs) * \
+        (1.0 - ops.one_hot(target_index, ops.shape(diffs)[1]))
+    diffs_masked = diffs * mask
+
+    losses = ops.exp(-0.5 * diffs_masked)
+    loss = ops.sum(losses, axis=1)
+    loss = ops.log(1.0 + loss)
+    return ops.mean()
+
+
