@@ -1,8 +1,6 @@
 # losses.py
 from keras import ops
 
-"""m should always be 0 or 1"""
-
 
 def cross_entropy_loss(y_true, y_pred):
     return -y_true * ops.log(y_pred + 1e-7) - (1.0 - y_true) * ops.log(1.0 - y_pred + 1e-7)
