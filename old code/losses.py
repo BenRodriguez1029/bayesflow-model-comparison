@@ -58,5 +58,7 @@ def multimodel_exponential_loss(y_true, f_x):
         (1.0 - ops.one_hot(target_index, ops.shape(diffs)[1]))
     diffs_masked = diffs * mask
 
-    losses = ops.exp(-0.5 * diffs_masked)
-    return ops.mean(ops.sum(losses, axis=1))  # mean over batch
+    losses = ops.exp(diffs_masked)
+    losses = ops.sum(losses, axis=1)
+    losses = ops.sqrt(losses)
+    return ops.mean(losses)  # mean over batch
