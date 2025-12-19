@@ -1,6 +1,7 @@
 import numpy as np
 from keras.utils import Sequence
 
+
 class DataSimulator(Sequence):
     def __init__(self, batches_per_epoch, simulators, batch_size=32, **kwargs):
         super().__init__(**kwargs)
@@ -12,7 +13,7 @@ class DataSimulator(Sequence):
     def __len__(self):
         return self.batches_per_epoch
 
-    def __getitem__(self, index):
+    def __getitem__(self, index, normalize=True):
         base_size = self.batch_size // self.n_models
         sizes = [base_size] * self.n_models
         for i in range(self.batch_size % self.n_models):
@@ -27,7 +28,12 @@ class DataSimulator(Sequence):
 
         X_batch = np.concatenate(X_list, axis=0)
         y_batch = np.concatenate(y_list, axis=0)
-        
+
+        if normalize:
+            mean = np.mean(X_batch, axis=1, keepdims=True)
+            std = np.std(X_batch, axis=1, keepdims=True)
+            X_batch = (X_batch - mean) / (std + 1e-8)
+
         perm = np.random.permutation(self.batch_size)
         X_batch = X_batch[perm]
         y_batch = y_batch[perm]
