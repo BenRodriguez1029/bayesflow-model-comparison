@@ -16,7 +16,7 @@ def random_walk(n_steps):
     models = []
 
     for t in range(n_steps):
-        if random.random() < 0.01:
+        if random.random() < 0.3:
             rho_t = random.uniform(-1, 1)
             v_t = random.uniform(0, 0.006)
             models.append(1)
