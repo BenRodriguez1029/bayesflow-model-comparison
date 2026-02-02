@@ -3,7 +3,7 @@ from keras.utils import Sequence
 
 
 class DataSimulator(Sequence):
-    def __init__(self, batches_per_epoch, simulator, batch_size=32, normalize=True, **kwargs):
+    def __init__(self, batches_per_epoch, simulator, batch_size=32, normalize=False, **kwargs):
         super().__init__(**kwargs)
         self.batches_per_epoch = batches_per_epoch
         self.simulator = simulator
