@@ -3,7 +3,7 @@ from keras.utils import Sequence
 
 
 class DataSimulator(Sequence):
-    def __init__(self, batches_per_epoch, simulator, batch_size=32, normalize=False, **kwargs):
+    def __init__(self, batches_per_epoch, simulator, batch_size=32, normalize=True, **kwargs):
         super().__init__(**kwargs)
         self.batches_per_epoch = batches_per_epoch
         self.simulator = simulator
@@ -20,9 +20,11 @@ class DataSimulator(Sequence):
         y_batch = np.array(y_list)
 
         if self.normalize:
-            mean = np.mean(X_batch, axis=1, keepdims=True)
-            std = np.std(X_batch, axis=1, keepdims=True)
-            X_batch = (X_batch - mean) / (std + 1e-8)
+            # mean = np.mean(X_batch, axis=1, keepdims=True)
+            # std = np.std(X_batch, axis=1, keepdims=True)
+            # X_batch = (X_batch - mean) / (std + 1e-8)
+
+            X_batch = X_batch * 50.0
 
         perm = np.random.permutation(self.batch_size)
         X_batch = X_batch[perm]
